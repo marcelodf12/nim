@@ -1,0 +1,55 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 08-ago-2014, 8:08:52
+    Author     : marcelo
+*/
+div.juego{
+    border: 2px solid #F2F2F2;
+    background-color: #E6E6E6;
+    float: left;
+    width: 70%;
+    height: 500px;
+    font-size: 15px;
+    margin: 2px;
+    padding: 2px;
+}
+div.jugadores{
+    border: 2px solid #F2F2F2;
+    background-color: #BEF781;
+    float: left;
+    width: 20%;
+    height: 500px;
+    font-size: 15px;
+    margin: 2px;
+    display: inline;
+    padding: 2px;
+}
+div.ventana{
+    top:200px;
+    left:300px;
+    position:absolute;
+    background-color:#ceffad;
+    color:#000000;
+    background: #ceffad;  /* Color de fondo */
+    position: absolute;
+    margin-left: 180px;
+    border: 1px solid #adffad;  /* Borde de la ventana */
+    box-shadow: 0 5px 25px rgba(0,0,0,.1);  /* Sombra */
+    z-index:999;
+}
+input:focus{
+    background-color:#ce00ad;
+}
+body{
+    background-color: #A9BCF5;
+}
+h1{
+    color: white;
+    text-align: center;
+    font-family: fantasy;
+    text-transform: uppercase;
+}
