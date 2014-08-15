@@ -63,8 +63,7 @@ public class NimEndpoint {
             oponente.getBasicRemote().sendText("j: " + getNick(cliente));
             LOGGER.log(Level.INFO, "Retando a: {0}", nick);
         } else if (codigos[0].compareTo("2") == 0) {
-            oponente.getBasicRemote().sendText("jugada");
-            LOGGER.log(Level.INFO, "Jugada a: {0}", "a:" + String.valueOf(x) + ":" + String.valueOf(y) + ":");
+            LOGGER.log(Level.INFO, "Jugada a: {0}", message);
             for (JuegoNim juego : juegos) {
                 if (juego.esJuego(cliente, oponente)) {
                     juego.jugar(x, y);
@@ -74,7 +73,7 @@ public class NimEndpoint {
                             oponente.getBasicRemote().sendText("gano:" + nick);
                             juegos.remove(juego);
                         } else {
-                            oponente.getBasicRemote().sendText("a:" + String.valueOf(x) + ":" + String.valueOf(y) + ":" + nick);
+                            oponente.getBasicRemote().sendText("a:" + String.valueOf(x) + ":" + String.valueOf(y) + ":" + getNick(cliente));
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(NimEndpoint.class.getName()).log(Level.SEVERE, null, ex);
