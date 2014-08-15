@@ -60,7 +60,8 @@ public class NimEndpoint {
             nick_session.put(nick, cliente);
         } else if (codigos[0].compareTo("1") == 0) {
             juegos.add(new JuegoNim(cliente, oponente));
-            oponente.getBasicRemote().sendText("reto de " + nick);
+            oponente.getBasicRemote().sendText("j: " + getNick(cliente));
+            LOGGER.log(Level.INFO, "Retando a: {0}", nick);
         } else if (codigos[0].compareTo("2") == 0) {
             for (JuegoNim juego : juegos) {
                 if (juego.esJuego(cliente, oponente)) {
@@ -81,6 +82,7 @@ public class NimEndpoint {
             }
 
         } else if (codigos[0].compareTo("3") == 0) {
+            LOGGER.log(Level.INFO, "Cerrando: {0}", message);
             oponente.getBasicRemote().sendText("x: " + getNick(cliente));
             for (JuegoNim j : juegos) {
                 if(j.esJuego(oponente, cliente)) {
