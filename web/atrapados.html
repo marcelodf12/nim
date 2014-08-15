@@ -14,14 +14,39 @@
             };
             websocket.onmessage = function(evt) { // cuando se recibe un mensaje
                 log("Recibido:" + evt.data);
-                if (evt.data.toString().substring(0, 2) === "x:") {
+                if (evt.data.toString().substring(0, 2) === "a:") {
+                    var l = evt.data.toString().length;
+                    var user = evt.data.toString().substring(6, l);
+                    var x = parseInt(evt.data.toString().substring(2, 3));
+                    var y = parseInt(evt.data.toString().substring(4, 5));
+                    var i, j;
+                    for (i = 0; i < 8; i++) {
+                        for (j = 0; j < 8; j++) {
+                            nombre = ";" + i.toString() + ";" + j.toString() + ";" + user;
+                            boton = document.getElementById(nombre);
+                            boton.disabled = false;
+                        }
+                    }
+                    for (i = 0; i <= x; i++) {
+                        for (j = y; j < 8; j++) {
+                            nombre = ";" + i.toString() + ";" + j.toString() + ";" + user;
+                            log(nombre);
+                            boton = document.getElementById(nombre);
+                            boton.value = "0";
+                        }
+                    }
+                    if (x == 7 && y == 0) {
+                        titulo = document.getElementById("titulo" + user);
+                        titulo.innerHTML += " Ganaste";
+                    }
+
+                } else if (evt.data.toString().substring(0, 2) === "x:") {
                     var l = evt.data.toString().length;
                     var user = evt.data.toString().substring(3, l);
                     var divContenedor = document.getElementById(user);
-                    log("Matando-> "+ divContenedor);
+                    log("Matando-> " + divContenedor);
                     divContenedor.parentNode.removeChild(divContenedor);
-                }
-                if (evt.data.toString().substring(0, 2) === "j:") {
+                } else if (evt.data.toString().substring(0, 2) === "j:") {
                     var l = evt.data.toString().length;
                     var usuario = evt.data.toString().substring(3, l);
                     var divContenedor = document.createElement("div");
@@ -59,6 +84,7 @@
                             inputXY.setAttribute("value", "x");
                             inputXY.setAttribute("name", ";" + i.toString() + ";" + j.toString());
                             inputXY.setAttribute("onclick", "jugar(this);");
+                            inputXY.setAttribute("disabled", "true");
                             celda.appendChild(inputXY);
                         }
 
@@ -162,19 +188,32 @@
             }
 
             function jugar(boton) {
-                if (boton.value === "x") {
+                if (boton.value === "x" && boton.disabled != true) {
                     var jugada = boton.name;
                     var l = boton.id.toString().length;
                     var nick = boton.id.toString().substring(4, l);
                     var x = parseInt(jugada.substring(1, 2));
                     var y = parseInt(jugada.substring(3, 4));
-                    log(x.toString() + "-" + y.toString());
-                    for (var f = 0; f <= x; f++) {
-                        for (var c = y; c < 8; c++) {
-                            var id = ";" + f.toString() + ";" + c.toString() + nick;
-                            boton = document.getElementById(id);
-                            boton.value = "0";
-                            boton.disable = "true";
+                    var mensaje = "2" + nick + jugada;
+                    websocket.send(mensaje);
+                    if (x == 7 && y == 0) {
+                        log(nick.substring(1,nick.length));
+                        titulo = document.getElementById("titulo" + nick.substring(1,nick.length));
+                        titulo.innerHTML += " Perdiste";
+                    } else {
+                        for (var f = 0; f <= x; f++) {
+                            for (var c = y; c < 8; c++) {
+                                var id = ";" + f.toString() + ";" + c.toString() + nick;
+                                boton = document.getElementById(id);
+                                boton.value = "0";
+                            }
+                        }
+                        for (var f = 0; f < 8; f++) {
+                            for (var c = 0; c < 8; c++) {
+                                var id = ";" + f.toString() + ";" + c.toString() + nick;
+                                boton = document.getElementById(id);
+                                boton.disabled = true;
+                            }
                         }
                     }
 
