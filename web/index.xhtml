@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+        <link rel="stylesheet" type="text/css" href="css/estilos.css" media="screen"/>
+        <script type="text/javascript" src="js/movimiento.js" />
+    </h:head>
+    <h:body onload="PF('dlg1').show();">
+        <script type="text/javascript">
+            wsUri = "ws://localhost:8080/Nim/NimEndpoint";
+            var websocket;
+            websocket = new WebSocket(wsUri); //creamos el socket
+            websocket.onopen = function(evt) { //manejamos los eventos...
+                log("Conectado..."); //... y aparecerá en la pantalla
+            };
+            websocket.onmessage = function(evt) { // cuando se recibe un mensaje
+                log("Recibido:" + evt.data);
+                var usuarios = JSON.parse(evt.data).nick;
+                jugadoresDiv.innerHTML = "";
+                for(u in usuarios){
+                    jugadoresDiv.innerHTML += (usuarios[u]);
+                    jugadoresDiv.innerHTML += ("<br />");
+                }
+            };
+            websocket.onerror = function(evt) {
+                log("Error:" + evt.data);
+            };
+
+            function loggin(nick) {
+                mensaje = "0;" + nick + ";0;0";
+                websocket.send(mensaje);
+                PF('dlg1').hide();
+            }
+
+            function enviarMensaje() {
+                websocket.send(mensajeTXT.value);
+                log("Enviando:" + mensajeTXT.value);
+            }
+            function log(mensaje) { //aqui mostrará el LOG de lo que está haciendo el WebSocket
+                var logDiv = document.getElementById("logDiv");
+                logDiv.innerHTML += (mensaje + '<br/>');
+            }
+        </script>
+        <p:dialog header="Loggin" widgetVar="dlg1" minHeight="40">
+            <h:outputText value="Ingrese un Nick" /><br/><br/>
+            <p:inputText id="nick"/><br/><br/>
+            <p:commandButton value="Ingresar" onclick="loggin(nick.value);" />
+        </p:dialog>
+        <h1>Juego de Nim</h1>
+        <h2>Universidad Nacional de Asunción</h2>
+        <h2>Programación Web</h2>
+        <p:layout style="min-width:400px;min-height:200px;">
+            <p:layoutUnit position="west" resizable="true" size="200" minSize="40" maxSize="200">
+                <p:accordionPanel>
+                    <p:tab title="Jugadores">
+                        <f:verbatim escape="true">
+                        <div id="jugadoresDiv">
+                            .
+                        </div>
+                        </f:verbatim>
+                    </p:tab>
+                </p:accordionPanel>
+            </p:layoutUnit>
+
+            <p:layoutUnit position="center">
+                .
+            </p:layoutUnit>
+        </p:layout>
+        <p:accordionPanel>
+            <p:tab title="Mensajes">
+                <div id="logDiv">
+                    .
+                </div>
+            </p:tab>
+
+        </p:accordionPanel>
+        <h3>
+            Marcelo Martinez - Marcelo Franco
+        </h3>
+    </h:body>
+</html>
+
