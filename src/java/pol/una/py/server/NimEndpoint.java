@@ -63,16 +63,18 @@ public class NimEndpoint {
             oponente.getBasicRemote().sendText("j: " + getNick(cliente));
             LOGGER.log(Level.INFO, "Retando a: {0}", nick);
         } else if (codigos[0].compareTo("2") == 0) {
+            oponente.getBasicRemote().sendText("jugada");
+            LOGGER.log(Level.INFO, "Jugada a: {0}", "a:" + String.valueOf(x) + ":" + String.valueOf(y) + ":");
             for (JuegoNim juego : juegos) {
                 if (juego.esJuego(cliente, oponente)) {
                     juego.jugar(x, y);
                     try {
                         if (juego.hayGanador()) {
-                            cliente.getBasicRemote().sendText("perdio"+nick);
-                            oponente.getBasicRemote().sendText("gano"+nick);
+                            cliente.getBasicRemote().sendText("perdio:" + nick);
+                            oponente.getBasicRemote().sendText("gano:" + nick);
                             juegos.remove(juego);
                         } else {
-                            oponente.getBasicRemote().sendText("cambio: "+nick);
+                            oponente.getBasicRemote().sendText("a:" + String.valueOf(x) + ":" + String.valueOf(y) + ":" + nick);
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(NimEndpoint.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,7 +87,7 @@ public class NimEndpoint {
             LOGGER.log(Level.INFO, "Cerrando: {0}", message);
             oponente.getBasicRemote().sendText("x: " + getNick(cliente));
             for (JuegoNim j : juegos) {
-                if(j.esJuego(oponente, cliente)) {
+                if (j.esJuego(oponente, cliente)) {
                     juegos.remove(j);
                 }
             }
@@ -106,6 +108,11 @@ public class NimEndpoint {
         if (conexiones.contains(session)) { // se averigua si está en la colección
             try {
                 LOGGER.log(Level.INFO, "Terminando la conexion de {0}", session.getId());
+                String nickDesertor = getNick(session);
+                conexiones.remove(session);
+                for (Session c : conexiones) {
+                    c.getBasicRemote().sendText("x: " + nickDesertor);
+                }
                 for (String n : listaDeNicks) {
                     Session user = (Session) nick_session.get(n);
                     if (session.getId().compareTo(user.getId()) == 0) {
@@ -114,8 +121,6 @@ public class NimEndpoint {
                     }
                 }
                 nick_session.remove(session);
-                conexiones.remove(session); // se retira de la lista
-                cerrarJuegos(session);
                 session.close(); //se cierra la conexión
             } catch (IOException ex) {
                 LOGGER.log(Level.INFO, "Error: {0}", ex.getMessage());
@@ -123,22 +128,6 @@ public class NimEndpoint {
             }
         }
         NimEndpoint.informarSesiones();
-    }
-
-    static private void cerrarJuegos(Session session) {
-        try {
-            for (JuegoNim j : juegos) {
-                if (j.getJ1() == session) {
-                    j.getJ2().getBasicRemote().sendText("x: " + getNick(j.getJ1()));
-                    juegos.remove(j);
-                } else if (j.getJ2() == session) {
-                    j.getJ1().getBasicRemote().sendText("x: " + getNick(j.getJ2()));
-                    juegos.remove(j);
-                }
-            }
-        } catch (IOException ex) {
-            LOGGER.log(Level.INFO, "Error: {0}", ex.getMessage());
-        }
     }
 
     static private void informarSesiones() {
