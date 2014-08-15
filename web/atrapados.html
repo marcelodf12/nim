@@ -197,9 +197,16 @@
                     var mensaje = "2" + nick + jugada;
                     websocket.send(mensaje);
                     if (x == 7 && y == 0) {
-                        log(nick.substring(1,nick.length));
-                        titulo = document.getElementById("titulo" + nick.substring(1,nick.length));
+                        log(nick.substring(1, nick.length));
+                        titulo = document.getElementById("titulo" + nick.substring(1, nick.length));
                         titulo.innerHTML += " Perdiste";
+                        for (var f = 0; f < 8; f++) {
+                            for (var c = 0; c < 8; c++) {
+                                var id = ";" + f.toString() + ";" + c.toString() + nick;
+                                boton = document.getElementById(id);
+                                boton.disabled = true;
+                            }
+                        }
                     } else {
                         for (var f = 0; f <= x; f++) {
                             for (var c = y; c < 8; c++) {
@@ -244,7 +251,7 @@
         <div class="juego" id="juego"></div><br><br>
         <div
             id="logDiv" 
-            style="top:200px; left:300px; margin-left: 400px; position:absolute; background-color:#FFFF00; color:#000000;"
+            style="top:200px; left:300px; margin-left: 400px; position:absolute; background-color:#FFFF00; color:#000000;display:none;"
             onmousedown="comienzoMovimiento(event, this.id);"
             onmouseover="this.style.cursor = 'move'">
         </div>
