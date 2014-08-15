@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="css/estilos.css" media="screen"/>
+        <script language="javascript" type="text/javascript" src="js/movimiento.js"></script>
+        <script type="text/javascript">
+            wsUri = "ws://localhost:8080/Nim/NimEndpoint";
+            var websocket;
+            websocket = new WebSocket(wsUri); //creamos el socket
+            websocket.onopen = function(evt) { //manejamos los eventos...
+                log("Conectado..."); //... y aparecerá en la pantalla
+            };
+            websocket.onmessage = function(evt) { // cuando se recibe un mensaje
+                log("Recibido:" + evt.data);
+                var usuarios = JSON.parse(evt.data).nick;
+                var divJ = document.getElementById("jugadores");
+                divJ.innerHTML = "";
+                for (u in usuarios) {
+                    divJ.insertAdjacentHTML("afterbegin", "<input type='button' value='" + usuarios[u] + "' onclick='retar(this.value);'><br>");
+                }
+            };
+            websocket.onerror = function(evt) {
+                log("Error:" + evt.data);
+            };
+            function retar(usuario) {
+                //websocket.send("1;" + usuario + ";0;0");
+                var divContenedor = document.createElement("div");
+                divContenedor.setAttribute("id", usuario);
+                divContenedor.setAttribute("class", "ventana");
+                divContenedor.setAttribute("onmousedown", "comienzoMovimiento(event, this.id);");
+                divContenedor.setAttribute("onmouseover", "this.style.cursor='move'");
+                divContenedor.setAttribute("style", "top:200px; left:300px;");
+                document.body.appendChild(divContenedor);
+                var Div = document.getElementById(usuario);
+
+                var matriz = new Array();
+                var n = 8;
+                // Crea un elemento <table> y un elemento <tbody>
+                var tabla = document.createElement("table");
+                var tblBody = document.createElement("tbody");
+                var titulo = document.createElement("h3");
+                titulo.setAttribute("id", "titulo" + usuario);
+                titulo.innerHTML = (usuario);
+                Div.appendChild(titulo);
+                // Crea las celdas
+                for (var i = 0; i < n; i++) {
+                    // Crea las hileras de la tabla
+                    var hilera = document.createElement("tr");
+                    for (var j = 0; j < n; j++) {
+                        // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+                        // texto sea el contenido de <td>, ubica el elemento <td> al final
+                        // de la hilera de la tabla
+                        matriz[i, j] = '00';
+                        var celda = document.createElement("td");
+                        hilera.appendChild(celda);
+                        inputXY = document.createElement('input');
+                        inputXY.setAttribute("type", "button");
+                        inputXY.setAttribute("id", ";" + i.toString() + ";" + j.toString() + ";" + usuario);
+                        inputXY.setAttribute("value", "x");
+                        inputXY.setAttribute("name", ";" + i.toString() + ";" + j.toString());
+                        inputXY.setAttribute("onclick", "jugar(this);");
+                        celda.appendChild(inputXY);
+                    }
+
+                    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+                    tblBody.appendChild(hilera);
+                }
+                
+                var btnCerrar = document.createElement("input");
+                btnCerrar.setAttribute("type", "button");
+                btnCerrar.setAttribute("id", "btnCerrar" + usuario);
+                btnCerrar.setAttribute("value", "Cerrar");
+                btnCerrar.setAttribute("onclick", "cerrar(this);");
+                
+
+                // posiciona el <tbody> debajo del elemento <table>
+                tabla.appendChild(tblBody);
+                // appends <table> into <body>
+                divContenedor.appendChild(tabla);
+                divContenedor.appendChild(btnCerrar);
+                // modifica el atributo "border" de la tabla y lo fija a "2";
+                tabla.setAttribute("border", "4");
+                log("Retando a " + usuario);
+            }
+            
+            function cerrar(boton){
+                boton.parentNode.parentNode.removeChild(boton.parentNode);
+                log(boton.id);
+            }
+            
+            function jugar(boton) {
+                if (boton.value === "x") {
+                    var jugada = boton.name;
+                    var l = boton.id.toString().length;
+                    var nick = boton.id.toString().substring(4, l);
+                    var x = parseInt(jugada.substring(1, 2));
+                    var y = parseInt(jugada.substring(3, 4));
+                    log(x.toString() + "-" + y.toString());
+                    for (var f = 0; f <= x; f++) {
+                        for (var c = y; c < 8; c++) {
+                            var id = ";" + f.toString() + ";" + c.toString() + nick;
+                            boton = document.getElementById(id);
+                            boton.value = "0";
+                            boton.disable = "true";
+                        }
+                    }
+
+                }
+            }
+            function loggin(nick) {
+                mensaje = "0;" + nick + ";0;0";
+                websocket.send(mensaje);
+                document.getElementById("usuario").disabled = "true";
+                document.getElementById("btnRegistrar").disabled = "true";
+            }
+
+            function enviarMensaje() {
+                websocket.send(mensajeTXT.value);
+                log("Enviando:" + mensajeTXT.value);
+            }
+            function log(mensaje) { //aqui mostrará el LOG de lo que está haciendo el WebSocket
+                var logDiv = document.getElementById("logDiv");
+                logDiv.innerHTML += (mensaje + '<br/>');
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Juego de Nim</h1>
+        User: <input id="usuario" type="text">
+        <input id="btnRegistrar" type="button" onclick="loggin(usuario.value);" value="Registrarse"><br><br>
+        <div class="jugadores" id="jugadores"></div>
+        <div class="juego" id="juego"></div><br><br>
+        <div
+            id="logDiv" 
+            style="top:200px; left:300px; margin-left: 400px; position:absolute; background-color:#FFFF00; color:#000000;"
+            onmousedown="comienzoMovimiento(event, this.id);"
+            onmouseover="this.style.cursor = 'move'">
+        </div>
+
+    </body>
+</html>
